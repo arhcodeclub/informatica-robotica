@@ -1,6 +1,6 @@
 # Informatic Robotica portfolio
 
-### Door Mees, Isaac & Coen
+### Door Mees, Isaak & Coen
 
 
 
