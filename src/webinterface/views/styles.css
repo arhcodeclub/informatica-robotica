@@ -21,11 +21,19 @@ div {
 
 button {
     background-color: rgba(0, 0, 0, 0);
-    border: white solid 2px;
+    border: rgba(255, 255, 255, 1) solid 2px;
     margin-top: 2px;
     margin-bottom: 2px;
     height: 5%;
     width: 5%;
+}
+
+#buttonUp:hover, #buttonLeft:hover, #buttonRight:hover, #buttonDown:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#buttonUp:active, #buttonLeft:active, #buttonRight:active, #buttonDown:active {
+    border:rgba(255, 255, 255, 0.2) solid 2px;
 }
 
 #buttonUp {
