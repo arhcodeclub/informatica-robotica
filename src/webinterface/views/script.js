@@ -83,25 +83,41 @@ window.addEventListener("keyup", function(e) {
 
 function upStart() {
     console.log("up: start")
+    buttonUp.style.border = "rgba(255, 255, 255, 0.2) solid 2px"
+    buttonUp.style.backgroundColor = "rgba(255, 255, 255, 0.1)" 
 }
 function upStop() {
     console.log("up: stop")
+    buttonUp.style.border = "rgba(255, 255, 255, 1) solid 2px"
+    buttonUp.style.backgroundColor = "rgba(0, 0, 0, 0)" 
 }
 function leftStart() {
     console.log("left: start")
+    buttonLeft.style.border = "rgba(255, 255, 255, 0.2) solid 2px"
+    buttonLeft.style.backgroundColor = "rgba(255, 255, 255, 0.1)"
 }
 function leftStop() {
     console.log("left: stop")
+    buttonLeft.style.border = "rgba(255, 255, 255, 1) solid 2px"
+    buttonLeft.style.backgroundColor = "rgba(0, 0, 0, 0)" 
 }
 function rightStart() {
     console.log("right: start")
+    buttonRight.style.border = "rgba(255, 255, 255, 0.2) solid 2px"
+    buttonRight.style.backgroundColor = "rgba(255, 255, 255, 0.1)"
 }
 function rightStop() {
     console.log("right: stop")
+    buttonRight.style.border = "rgba(255, 255, 255, 1) solid 2px"
+    buttonRight.style.backgroundColor = "rgba(0, 0, 0, 0)" 
 }
 function downStart() {
     console.log("down: start")
+    buttonDown.style.border = "rgba(255, 255, 255, 0.2) solid 2px"
+    buttonDown.style.backgroundColor = "rgba(255, 255, 255, 0.1)"
 }
 function downStop() {
     console.log("down: stop")
+    buttonDown.style.border = "rgba(255, 255, 255, 1) solid 2px"
+    buttonDown.style.backgroundColor = "rgba(0, 0, 0, 0)" 
 }
