@@ -26,15 +26,6 @@ button {
     margin-bottom: 2px;
     height: 5%;
     width: 5%;
-}
-
-#buttonUp:hover, #buttonLeft:hover, #buttonRight:hover, #buttonDown:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-#buttonUp:active, #buttonLeft:active, #buttonRight:active, #buttonDown:active {
-    border:rgba(255, 255, 255, 0.2) solid 2px;
-}
 
 #buttonUp {
     margin-top: 15%;
