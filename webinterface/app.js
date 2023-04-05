@@ -4,7 +4,7 @@ const _ = require("lodash");
 
 const app = express();
 
-app.use(express.static("public"));
+app.use(express.static("./public"));
 app.use(parser.urlencoded({ extended: true }));
 app.use(parser.json());
 
