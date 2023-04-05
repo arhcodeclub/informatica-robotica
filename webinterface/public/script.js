@@ -24,9 +24,6 @@ function initButton(button, direction, arrow, key) {
             direction,
             start: 1,
         });
-
-        button.style.border = "rgba(255, 255, 255, 0.2) solid 2px";
-        button.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
     });
     button.addEventListener("mouseup", function () {
         sendDirection({
@@ -34,13 +31,6 @@ function initButton(button, direction, arrow, key) {
             start: 0,
         });
         console.log(direction + ": stop");
-        button.style.border = "rgba(255, 255, 255, 1) solid 2px";
-        button.addEventListener("mouseover", function () {
-            button.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
-        });
-        button.addEventListener("mouseout", function () {
-            button.style.backgroundColor = "rgba(0, 0, 0, 0)";
-        });
     });
     window.addEventListener("keydown", function (e) {
         if (e.key === key || e.keyCode === arrow) {
@@ -49,8 +39,6 @@ function initButton(button, direction, arrow, key) {
                     direction,
                     start: 1,
                 });
-                button.style.border = "rgba(255, 255, 255, 0.2) solid 2px";
-                button.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
             }
             stopSave = stopCount;
         }
@@ -60,14 +48,6 @@ function initButton(button, direction, arrow, key) {
             sendDirection({
                 direction,
                 start: 0,
-            });
-            button.style.border = "rgba(255, 255, 255, 1) solid 2px";
-            button.style.backgroundColor = "rgba(0, 0, 0, 0)";
-            button.addEventListener("mouseover", function () {
-                button.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
-            });
-            button.addEventListener("mouseout", function () {
-                button.style.backgroundColor = "rgba(0, 0, 0, 0)";
             });
             stopCount++;
         }
