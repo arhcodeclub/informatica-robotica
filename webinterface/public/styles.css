@@ -20,14 +20,6 @@ html, body {
     user-select: none;
 }
 
-.arrow-button:active {
-    border:rgba(255, 255, 255, 0.2) solid 2px;
-}
-
-.arrow-button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
 /* Arrow rotation */
 
 #arrowUp {
@@ -75,12 +67,4 @@ html, body {
 .arrow-button {
     background-color: rgba(0, 0, 0, 0);
     border: rgba(255, 255, 255, 1) solid 2px;
-}
-
-#buttonUp:hover, #buttonLeft:hover, #buttonRight:hover, #buttonDown:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-#buttonUp:active, #buttonLeft:active, #buttonRight:active, #buttonDown:active {
-    border:rgba(255, 255, 255, 0.2) solid 2px;
 }
