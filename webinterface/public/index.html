@@ -8,15 +8,17 @@
     <title>Dashboard</title>
 </head>
 <body>
-    <h1 id="h1">Car Dashboard</h1>
+    <h1 id="dashboard-header">Car Dashboard</h1>
     
-    <button id="buttonUp"><img src="./white-arrow-down.png" draggable="false" id="arrowUp"></button>
-    <div>
-        <button id="buttonLeft"><img src="./white-arrow-down.png" draggable="false" id="arrowLeft"></button>
-        <button id="buttonMiddle"><img src="./white-arrow-down.png" draggable="false" id="arrowMiddle"></button>
-        <button id="buttonRight"><img src="./white-arrow-down.png" draggable="false" id="arrowRight"></button>
+    <div id="buttons-wrapper">
+        <button class="arrow-button" id="buttonUp"><img src="./white-arrow-down.png" draggable="false" id="arrowUp"></button>
+        <div id="buttons-middle-row-wrapper">
+            <button class="arrow-button button-middle-row" id="buttonLeft"><img src="./white-arrow-down.png" draggable="false"></button>
+            <button class="arrow-button button-middle-row" id="buttonMiddle"><img src="./white-arrow-down.png" draggable="false"></button>
+            <button class="arrow-button button-middle-row" id="buttonRight"><img src="./white-arrow-down.png" draggable="false"></button>
+        </div>
+        <button class="arrow-button" id="buttonDown"><img src="./white-arrow-down.png" draggable="false" id="arrowDown"></button>
     </div>
-    <button id="buttonDown"><img src="./white-arrow-down.png" draggable="false" id="arrowDown"></button>
     <script src="./script.js"></script>
 </body>
 </html>
