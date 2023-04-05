@@ -9,17 +9,30 @@ const arrows = [38, 37, 39, 40];
 let stopCount = 0;
 let stopSave = 1;
 
-function sendDirection(data) {
+function setButtonPressedCss(button, isPressed) {
+    if (isPressed) button.style.border = "rgba(255, 255, 255, 0.2) solid 2px";
+    else button.style.border = "rgba(255, 255, 255, 1) solid 2px";
+}
+
+function sendDataToServer(data) {
     const XHR = new XMLHttpRequest();
     XHR.open("POST", "/action");
     XHR.setRequestHeader("Content-Type", "application/json");
     XHR.send(JSON.stringify(data));
 }
 
+// better name needed, called when button is activated
+function sendDirection(data) {
+    console.log(
+        `Direction: ${data.direction}, ` + `%c pressed: ${data.start}`,
+        `color: ${data.start ? "green" : "red"}`
+    );
+
+    sendDataToServer(data);
+}
+
 function initButton(button, direction, arrow, key) {
     button.addEventListener("mousedown", function () {
-        console.log(direction + ": start");
-
         sendDirection({
             direction,
             start: 1,
@@ -30,7 +43,7 @@ function initButton(button, direction, arrow, key) {
             direction,
             start: 0,
         });
-        console.log(direction + ": stop");
+        setButtonPressedCss(button, 0);
     });
     window.addEventListener("keydown", function (e) {
         if (e.key === key || e.keyCode === arrow) {
@@ -40,6 +53,7 @@ function initButton(button, direction, arrow, key) {
                     start: 1,
                 });
             }
+            setButtonPressedCss(button, 1);
             stopSave = stopCount;
         }
     });
@@ -49,6 +63,7 @@ function initButton(button, direction, arrow, key) {
                 direction,
                 start: 0,
             });
+            setButtonPressedCss(button, 0);
             stopCount++;
         }
     });
