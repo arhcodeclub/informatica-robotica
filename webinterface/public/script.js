@@ -10,8 +10,6 @@ const arrows = [38, 37, 39, 40];
 let stopCount = 0;
 let stopSave = 1;
 
-let serverAvailable = false;
-
 function setButtonPressedCss(button, isPressed) {
     if (isPressed) button.style.border = "rgba(255, 255, 255, 0.2) solid 2px";
     else button.style.border = "rgba(255, 255, 255, 1) solid 2px";
