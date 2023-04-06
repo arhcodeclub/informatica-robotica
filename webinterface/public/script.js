@@ -6,8 +6,11 @@ const buttons = [buttonUp, buttonLeft, buttonRight, buttonDown];
 const directions = ["up", "left", "right", "down"];
 const keys = ["w", "a", "d", "s"];
 const arrows = [38, 37, 39, 40];
+
 let stopCount = 0;
 let stopSave = 1;
+
+let serverAvailable = false;
 
 function setButtonPressedCss(button, isPressed) {
     if (isPressed) button.style.border = "rgba(255, 255, 255, 0.2) solid 2px";
@@ -15,10 +18,16 @@ function setButtonPressedCss(button, isPressed) {
 }
 
 function sendDataToServer(data) {
-    const XHR = new XMLHttpRequest();
-    XHR.open("POST", "/action");
-    XHR.setRequestHeader("Content-Type", "application/json");
-    XHR.send(JSON.stringify(data));
+    const request = new XMLHttpRequest();
+    request.open("POST", "/action");
+    request.setRequestHeader("Content-Type", "application/json");
+    request.send(JSON.stringify(data));
+
+    request.onreadystatechange = () => {
+        if (request.readyState === 4) {
+            // console.log(request.response);
+        }
+    }
 }
 
 // better name needed, called when button is activated

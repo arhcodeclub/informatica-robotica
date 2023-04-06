@@ -68,3 +68,11 @@ html, body {
     background-color: rgba(0, 0, 0, 0);
     border: rgba(255, 255, 255, 1) solid 2px;
 }
+
+.arrow-button:active {
+    border: rgba(255, 255, 255, 0.2) solid 2px;
+}
+
+.arrow-button:hover {
+    background-color: rgba(0, 0, 0, 0);
+}
