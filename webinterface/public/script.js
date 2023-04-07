@@ -179,6 +179,7 @@ function sendDirection(data) {
     socket.send(JSON.stringify(data));
 }
 
+/** tries to reconnect to server */
 function reconnect() {
     if (
         socket.readyState !== WebSocket.CLOSED &&
