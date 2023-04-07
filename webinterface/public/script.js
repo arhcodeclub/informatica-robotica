@@ -1,5 +1,4 @@
 class KeyboardInputContainer {
-
     key;
     isPressed;
 
@@ -19,11 +18,9 @@ class KeyboardInputContainer {
     unpress() {
         this.isPressed = false;
     }
-
 }
 
 class CarInput {
-
     keyboardInputs;
     element;
     activateCallback;
@@ -45,19 +42,18 @@ class CarInput {
 
         this.keyboardInputs = [];
 
-        keys.forEach(element => {
-            
+        keys.forEach((element) => {
             this.keyboardInputs.push(new KeyboardInputContainer(element));
-
         });
 
         this.isClicked = false;
-    
+
         this.initialize();
     }
 
     setStyle(isActive) {
-        if (isActive) this.element.style.border = "rgba(255, 255, 255, 0.2) solid 2px";
+        if (isActive)
+            this.element.style.border = "rgba(255, 255, 255, 0.2) solid 2px";
         else this.element.style.border = "rgba(255, 255, 255, 1) solid 2px";
     }
 
@@ -66,7 +62,9 @@ class CarInput {
 
         this.setStyle(1);
 
-        this.activateCallback();
+        try {
+            this.activateCallback();
+        } catch (e) {}
     }
 
     deactivate() {
@@ -74,12 +72,14 @@ class CarInput {
 
         this.setStyle(0);
 
-        this.deactivateCallback();
+        try {
+            this.deactivateCallback();
+        } catch (e) {}
     }
 
     _click() {
         this.activate();
-        
+
         this.isClicked = true;
     }
 
@@ -92,9 +92,9 @@ class CarInput {
     _press(e) {
         let key = e.key;
 
-        this.keyboardInputs.forEach(kinput => {
+        this.keyboardInputs.forEach((kinput) => {
             if (kinput.isPressed) return;
-           
+
             if (key === kinput.key) {
                 kinput.press();
 
@@ -110,15 +110,15 @@ class CarInput {
     _unpress(e) {
         let key = e.key;
 
-        let pressed = 0, isMine = false;
+        let pressed = 0,
+            isMine = false;
 
-        this.keyboardInputs.forEach(kinput => {
+        this.keyboardInputs.forEach((kinput) => {
             if (key === kinput.key) {
                 kinput.unpress();
 
                 isMine = true;
-            }
-            else if (kinput.isPressed) pressed++;
+            } else if (kinput.isPressed) pressed++;
         });
 
         if (isMine && !pressed) {
@@ -130,34 +130,43 @@ class CarInput {
 
     /* attaches listeners to this.element */
     initialize() {
-
         this.element.addEventListener("mousedown", this._click.bind(this));
         this.element.addEventListener("mouseup", this._unclick.bind(this));
 
         document.addEventListener("keydown", this._press.bind(this));
         document.addEventListener("keyup", this._unpress.bind(this));
-
     }
-
 }
 
+let socket;
 
+function createSocket() {
+    let s = new WebSocket("ws://localhost:3000/");
 
+    s.onopen = (e) => {
+        console.log("connection established");
 
-const socket = new WebSocket("ws://localhost:3000/");
+        document.getElementById("buttonMiddle").style.backgroundColor = "green";
+    };
 
-socket.onopen = (e) => {
-    console.log("socket connection established");
+    s.onmessage = (e) => {
+        console.log("received: " + e.data);
+    };
+
+    s.onerror = (e) => {
+        console.log("connection failed");
+
+        document.getElementById("buttonMiddle").style.backgroundColor = "red";
+    };
+
+    s.onclose = (e) => {
+        console.log("connection closed");
+
+        document.getElementById("buttonMiddle").style.backgroundColor = "red";
+    };
+
+    return s;
 }
-
-socket.onmessage = (e) => {
-    console.log("received: " + e.data);
-}
-
-socket.onerror = (e) => {
-    console.error();
-}
-
 
 /** logs data to console and sends it to server */
 function sendDirection(data) {
@@ -170,12 +179,72 @@ function sendDirection(data) {
     socket.send(JSON.stringify(data));
 }
 
+function reconnect() {
+    if (
+        socket.readyState !== WebSocket.CLOSED &&
+        socket.readyState !== WebSocket.CONNECTING
+    )
+        return;
+
+    console.log("reconnecting...");
+
+    socket = createSocket();
+}
+
 /** program entrypoint (though javascript doesn't really have that :/) */
 function main() {
-    new CarInput(document.getElementById("buttonUp"), ["w", "ArrowUp"], ()=>{ sendDirection({ direction: "up", start: 1 }) }, ()=>{ sendDirection({ direction: "up", start: 0 }) })
-    new CarInput(document.getElementById("buttonDown"), ["s", "ArrowDown"], ()=>{ sendDirection({ direction: "down", start: 1 }) }, ()=>{ sendDirection({ direction: "down", start: 0 }) })
-    new CarInput(document.getElementById("buttonLeft"), ["a", "ArrowLeft"], ()=>{ sendDirection({ direction: "left", start: 1 }) }, ()=>{ sendDirection({ direction: "left", start: 0 }) })
-    new CarInput(document.getElementById("buttonRight"), ["d", "ArrowRight"], ()=>{ sendDirection({ direction: "right", start: 1 }) }, ()=>{ sendDirection({ direction: "right", start: 0 }) })
+    new CarInput(
+        document.getElementById("buttonUp"),
+        ["w", "ArrowUp"],
+        () => {
+            sendDirection({ direction: "up", start: 1 });
+        },
+        () => {
+            sendDirection({ direction: "up", start: 0 });
+        }
+    );
+    new CarInput(
+        document.getElementById("buttonDown"),
+        ["s", "ArrowDown"],
+        () => {
+            sendDirection({ direction: "down", start: 1 });
+        },
+        () => {
+            sendDirection({ direction: "down", start: 0 });
+        }
+    );
+    new CarInput(
+        document.getElementById("buttonLeft"),
+        ["a", "ArrowLeft"],
+        () => {
+            sendDirection({ direction: "left", start: 1 });
+        },
+        () => {
+            sendDirection({ direction: "left", start: 0 });
+        }
+    );
+    new CarInput(
+        document.getElementById("buttonRight"),
+        ["d", "ArrowRight"],
+        () => {
+            sendDirection({ direction: "right", start: 1 });
+        },
+        () => {
+            sendDirection({ direction: "right", start: 0 });
+        }
+    );
+    new CarInput(
+        document.getElementById("buttonMiddle"),
+        ["r"],
+        () => {
+            reconnect();
+        },
+        () => {
+            return;
+        }
+    );
+
+    socket = createSocket();
 }
 
 onload = main;

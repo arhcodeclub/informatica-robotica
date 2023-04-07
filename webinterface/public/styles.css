@@ -37,7 +37,7 @@ html, body {
 /* ---------------- */
 
 /* not needed right now, kept in 'cuz we need a filler image :/ */
-#buttonMiddle {
+#buttonMiddle img {
     visibility: hidden;
 }
 
