@@ -22,7 +22,7 @@ socket.on("connection", (ws) => {
     ws.on("error", console.error);
 
     ws.on("message", (data) => {
-        console.log("received: " + data);
+        console.log(`received: '${data}'`);
     });
 
     ws.send("received");
