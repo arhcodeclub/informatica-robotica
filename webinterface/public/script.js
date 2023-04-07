@@ -141,19 +141,21 @@ class CarInput {
 
 }
 
-/** sends [data] to server */
-function sendDataToServer(data) {
-    const request = new XMLHttpRequest();
-    request.open("POST", "/action");
-    request.setRequestHeader("Content-Type", "application/json");
-    request.send(JSON.stringify(data));
 
-    // response handling
-    request.onreadystatechange = () => {
-        if (request.readyState === 4) {
-            // console.log(request.response);
-        }
-    }
+
+
+const socket = new WebSocket("ws://localhost:3000/");
+
+socket.onopen = (e) => {
+    console.log("socket connection established");
+}
+
+socket.onmessage = (e) => {
+    console.log("received: " + e.data);
+}
+
+socket.onerror = (e) => {
+    console.error();
 }
 
 
@@ -165,7 +167,7 @@ function sendDirection(data) {
         `color: ${data.start ? "green" : "red"}`
     );
 
-    sendDataToServer(data);
+    socket.send(JSON.stringify(data));
 }
 
 /** program entrypoint (though javascript doesn't really have that :/) */
