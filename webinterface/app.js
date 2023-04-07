@@ -27,7 +27,7 @@ const socket = new WebSocketServer({ server });
 socket.on("connection", (e) => {
     e.on("error", console.error);
 
-    e.on("message", (data, isBinary) => {
+    e.on("message", (data) => {
 
         console.log(JSON.parse(data));
     
