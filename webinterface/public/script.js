@@ -10,17 +10,20 @@ const arrows = [38, 37, 39, 40];
 let stopCount = 0;
 let stopSave = 1;
 
+/** sets button style for pressed/released */
 function setButtonPressedCss(button, isPressed) {
     if (isPressed) button.style.border = "rgba(255, 255, 255, 0.2) solid 2px";
     else button.style.border = "rgba(255, 255, 255, 1) solid 2px";
 }
 
+/** sends [data] to server */
 function sendDataToServer(data) {
     const request = new XMLHttpRequest();
     request.open("POST", "/action");
     request.setRequestHeader("Content-Type", "application/json");
     request.send(JSON.stringify(data));
 
+    // response handling
     request.onreadystatechange = () => {
         if (request.readyState === 4) {
             // console.log(request.response);
@@ -28,8 +31,10 @@ function sendDataToServer(data) {
     }
 }
 
-// better name needed, called when button is activated
+
+/** logs data to console and sends it to server */
 function sendDirection(data) {
+    // logging with fancy colors >_>
     console.log(
         `Direction: ${data.direction}, ` + `%c pressed: ${data.start}`,
         `color: ${data.start ? "green" : "red"}`
@@ -38,6 +43,7 @@ function sendDirection(data) {
     sendDataToServer(data);
 }
 
+/** initializes singular button */
 function initButton(button, direction, arrow, key) {
     button.addEventListener("mousedown", function () {
         sendDirection({
@@ -76,6 +82,11 @@ function initButton(button, direction, arrow, key) {
     });
 }
 
-for (let i = 0; i < 4; i++) {
-    initButton(buttons[i], directions[i], arrows[i], keys[i]);
+/** program entrypoint (though javascript doesn't really have that :/) */
+function main() {
+    for (let i = 0; i < 4; i++) {
+        initButton(buttons[i], directions[i], arrows[i], keys[i]);
+    }
 }
+
+onload = main;
