@@ -9,8 +9,20 @@
 </head>
 <body>
     <h1 id="dashboard-header">Car Dashboard</h1>
+
+    <div id="address-input">
+        <label for="addr" id="addr-label">Remote server address: </label>
+        <input type="text" id="addr" name="address" required>
+    </div>
     
     <div id="buttons-wrapper">
+        <div id="buttons-input-status">
+            <p id="input-status" >not taking input</p>
+            <button id="switch-input">switch input</button>
+        </div>
+
+        <div id="margin-top-10"></div>
+
         <button class="arrow-button" id="buttonUp"><img src="./white-arrow-down.png" draggable="false" id="arrowUp"></button>
         <div id="buttons-middle-row-wrapper">
             <button class="arrow-button button-middle-row" id="buttonLeft"><img src="./white-arrow-down.png" draggable="false"></button>

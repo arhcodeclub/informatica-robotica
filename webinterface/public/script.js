@@ -1,171 +1,164 @@
-class KeyboardInputContainer {
-    key;
-    isPressed;
-
-    /**
-     * @param key The key with which this button activates
-     */
-    constructor(key) {
-        this.key = key;
-
-        this.isPressed = false;
-    }
-
-    press() {
-        this.isPressed = true;
-    }
-
-    unpress() {
-        this.isPressed = false;
-    }
-}
-
-class CarInput {
-    keyboardInputs;
+class InputButton {
     element;
-    activateCallback;
-    deactivateCallback;
 
-    isPressed;
+    keys;
+    activeKeys;
+
     isClicked;
 
+    callback;
+
     /**
-     * @param element HTMLElement to bind to
-     * @param keys Array of keys that should activate this button
-     * @param activateCallback Callback function called on activation
-     * @param deactivateCallback Callback function called on deactivation
+     * @param keys array of keys which activate button
+     * @param callback callback functions, is given the activation status (0 or 1) as input, where 1 is activation and 0 is deactivation
      */
-    constructor(element, keys, activateCallback, deactivateCallback) {
+    constructor(element, keys, callback) {
+        this.keys = keys;
+        this.activeKeys = new Array(this.keys.length);
         this.element = element;
-        this.activateCallback = activateCallback;
-        this.deactivateCallback = deactivateCallback;
 
-        this.keyboardInputs = [];
+        for (let i = 0; i < this.activeKeys.length; i++) this.activeKeys[i] = 0;
 
-        keys.forEach((element) => {
-            this.keyboardInputs.push(new KeyboardInputContainer(element));
-        });
-
-        this.isClicked = false;
-
-        this.initialize();
+        this.callback = callback;
     }
 
-    setStyle(isActive) {
-        if (isActive)
-            this.element.style.border = "rgba(255, 255, 255, 0.2) solid 2px";
-        else this.element.style.border = "rgba(255, 255, 255, 1) solid 2px";
-    }
-
-    activate() {
-        if (this.isPressed || this.isClicked) return;
-
-        this.setStyle(1);
-
-        try {
-            this.activateCallback();
-        } catch (e) {}
-    }
-
-    deactivate() {
-        if (this.isPressed || this.isClicked) return;
-
-        this.setStyle(0);
-
-        try {
-            this.deactivateCallback();
-        } catch (e) {}
-    }
-
-    _click() {
-        this.activate();
-
-        this.isClicked = true;
-    }
-
-    _unclick() {
-        this.isClicked = false;
-
-        this.deactivate();
-    }
-
-    _press(e) {
+    keyDown(e) {
         let key = e.key;
 
-        this.keyboardInputs.forEach((kinput) => {
-            if (kinput.isPressed) return;
-
-            if (key === kinput.key) {
-                kinput.press();
-
+        this.keys.forEach((k, i) => {
+            if (k === key) {
                 this.activate();
-
-                this.isPressed = true;
-
-                return;
+                this.activeKeys[i] = 1;
             }
         });
     }
 
-    _unpress(e) {
+    keyUp(e) {
         let key = e.key;
 
-        let pressed = 0,
-            isMine = false;
-
-        this.keyboardInputs.forEach((kinput) => {
-            if (key === kinput.key) {
-                kinput.unpress();
-
-                isMine = true;
-            } else if (kinput.isPressed) pressed++;
+        this.keys.forEach((k, i) => {
+            if (k === key) {
+                this.activeKeys[i] = 0;
+                this.deactivate();
+            }
         });
-
-        if (isMine && !pressed) {
-            this.isPressed = false;
-
-            this.deactivate();
-        }
     }
 
-    /* attaches listeners to this.element */
-    initialize() {
-        this.element.addEventListener("mousedown", this._click.bind(this));
-        this.element.addEventListener("mouseup", this._unclick.bind(this));
+    activate() {
+        // check if this is the first time this input is activated
+        for (let i = 0; i < this.activeKeys.length; i++)
+            if (this.activeKeys[i]) return;
+        if (this.isClicked) return;
 
-        document.addEventListener("keydown", this._press.bind(this));
-        document.addEventListener("keyup", this._unpress.bind(this));
+        this.callback(1);
+
+        this.element.style.border = "rgba(255, 255, 255, 0.2) solid 2px";
+    }
+
+    deactivate() {
+        // check if this is the first time this input is deactivated
+        for (let i = 0; i < this.activeKeys.length; i++)
+            if (this.activeKeys[i]) return;
+        if (this.isClicked) return;
+
+        this.callback(0);
+
+        this.element.style.border = "rgba(255, 255, 255, 1) solid 2px";
+    }
+}
+
+class InputHandler {
+    buttons;
+    takingInput;
+    inputSwitchElement;
+
+    constructor(buttons) {
+        this.buttons = buttons;
+        this.takingInput = false;
+        this.inputSwitchElement = document.getElementById("input-status");
+
+        this.initialize();
+    }
+
+    initialize() {
+        this.buttons.forEach((btn) => {
+            btn.element.addEventListener("mousedown", () => {
+                if (!this.takingInput) return;
+
+                btn.activate();
+                btn.isClicked = true;
+            });
+            btn.element.addEventListener("mouseup", () => {
+                if (!this.takingInput) return;
+
+                btn.isClicked = false;
+                btn.deactivate();
+            });
+        });
+
+        window.addEventListener("keydown", this.keyDown.bind(this));
+        window.addEventListener("keyup", this.keyUp.bind(this));
+    }
+
+    keyUp(e) {
+        if (!this.takingInput) return;
+
+        this.buttons.forEach((btn) => {
+            btn.keyUp(e);
+        });
+    }
+
+    keyDown(e) {
+        if (!this.takingInput) return;
+
+        this.buttons.forEach((btn) => {
+            btn.keyDown(e);
+        });
+    }
+
+    switchInput() {
+        this.takingInput = !this.takingInput;
+
+        this.inputSwitchElement.style.backgroundColor = (this.takingInput ? "green" : "red");
+        this.inputSwitchElement.innerHTML = (this.takingInput ? "taking input" : "not taking input");
     }
 }
 
 let socket;
 
 function createSocket() {
-    let s = new WebSocket("ws://localhost:3000/");
+    try {
+        let s = new WebSocket(document.getElementById("addr").value);
 
-    s.onopen = (e) => {
-        console.log("connection established");
+        document.getElementById("address-input").style.backgroundColor = "green";
 
-        document.getElementById("buttonMiddle").style.backgroundColor = "green";
-    };
+        s.onopen = (e) => {
+            console.log("connection established");
 
-    s.onmessage = (e) => {
-        console.log("received: " + e.data);
-    };
+            document.getElementById("buttonMiddle").style.backgroundColor = "green";
+        };
 
-    s.onerror = (e) => {
-        console.log("connection failed");
+        s.onmessage = (e) => {
+            console.log("received: " + e.data);
+        };
 
-        document.getElementById("buttonMiddle").style.backgroundColor = "red";
-    };
+        s.onerror = (e) => {
+            console.log("connection failed");
 
-    s.onclose = (e) => {
-        console.log("connection closed");
+            document.getElementById("buttonMiddle").style.backgroundColor = "red";
+        };
 
-        document.getElementById("buttonMiddle").style.backgroundColor = "red";
-    };
+        s.onclose = (e) => {
+            console.log("connection closed");
 
-    return s;
+            document.getElementById("buttonMiddle").style.backgroundColor = "red";
+        };
+    
+        return s;
+    } catch(e) {
+        document.getElementById("address-input").style.backgroundColor = "red";
+    }
+
 }
 
 /** logs data to console and sends it to server */
@@ -176,16 +169,24 @@ function sendDirection(data) {
         `color: ${data.start ? "green" : "red"}`
     );
 
-    socket.send(JSON.stringify(data));
+    try {
+        if (socket.readyState !== WebSocket.OPEN) return;
+
+        socket.send(JSON.stringify(data));
+    } catch(e) { return; }
 }
 
 /** tries to reconnect to server */
 function reconnect() {
     if (
-        socket.readyState !== WebSocket.CLOSED &&
-        socket.readyState !== WebSocket.CONNECTING
+        socket && (
+            socket.readyState !== WebSocket.CLOSED &&
+            socket.readyState !== WebSocket.CONNECTING
+        )
     )
         return;
+
+    document.getElementById("buttonMiddle").style.backgroundColor = "orange";
 
     console.log("reconnecting...");
 
@@ -194,56 +195,49 @@ function reconnect() {
 
 /** program entrypoint (though javascript doesn't really have that :/) */
 function main() {
-    new CarInput(
-        document.getElementById("buttonUp"),
-        ["w", "ArrowUp"],
-        () => {
-            sendDirection({ direction: "up", start: 1 });
-        },
-        () => {
-            sendDirection({ direction: "up", start: 0 });
-        }
-    );
-    new CarInput(
-        document.getElementById("buttonDown"),
-        ["s", "ArrowDown"],
-        () => {
-            sendDirection({ direction: "down", start: 1 });
-        },
-        () => {
-            sendDirection({ direction: "down", start: 0 });
-        }
-    );
-    new CarInput(
-        document.getElementById("buttonLeft"),
-        ["a", "ArrowLeft"],
-        () => {
-            sendDirection({ direction: "left", start: 1 });
-        },
-        () => {
-            sendDirection({ direction: "left", start: 0 });
-        }
-    );
-    new CarInput(
-        document.getElementById("buttonRight"),
-        ["d", "ArrowRight"],
-        () => {
-            sendDirection({ direction: "right", start: 1 });
-        },
-        () => {
-            sendDirection({ direction: "right", start: 0 });
-        }
-    );
-    new CarInput(
-        document.getElementById("buttonMiddle"),
-        ["r"],
-        () => {
-            reconnect();
-        },
-        () => {
-            return;
-        }
-    );
+    let handler = new InputHandler([
+        new InputButton(
+            document.getElementById("buttonUp"),
+            ["w", "ArrowUp"],
+            function (active) {
+                if (active) sendDirection({ direction: "up", start: 1 });
+                else sendDirection({ direction: "up", start: 0 });
+            }
+        ),
+        new InputButton(
+            document.getElementById("buttonDown"),
+            ["s", "ArrowDown"],
+            function (active) {
+                if (active) sendDirection({ direction: "down", start: 1 });
+                else sendDirection({ direction: "down", start: 0 });
+            }
+        ),
+        new InputButton(
+            document.getElementById("buttonLeft"),
+            ["a", "ArrowLeft"],
+            function (active) {
+                if (active) sendDirection({ direction: "left", start: 1 });
+                else sendDirection({ direction: "left", start: 0 });
+            }
+        ),
+        new InputButton(
+            document.getElementById("buttonRight"),
+            ["d", "ArrowRight"],
+            function (active) {
+                if (active) sendDirection({ direction: "right", start: 1 });
+                else sendDirection({ direction: "right", start: 0 });
+            }
+        ),
+        new InputButton(
+            document.getElementById("buttonMiddle"),
+            ["r"],
+            function (active) {
+                if (active) reconnect();
+            }
+        )
+    ]);
+
+    document.getElementById("switch-input").onclick = handler.switchInput.bind(handler);
 
     socket = createSocket();
 }

@@ -41,6 +41,10 @@ html, body {
     visibility: hidden;
 }
 
+#buttonMiddle {
+    background-color: red;
+}
+
 #buttons-wrapper {
     position: relative;
     top: 25%;
@@ -69,10 +73,22 @@ html, body {
     border: rgba(255, 255, 255, 1) solid 2px;
 }
 
-.arrow-button:active {
-    border: rgba(255, 255, 255, 0.2) solid 2px;
+#address-input {
+    display: flex;
+    justify-content: center;
+    color: white;
 }
 
-.arrow-button:hover {
-    background-color: rgba(0, 0, 0, 0);
+#buttons-input-status {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+#buttons-input-status p {
+    background-color: red;
+}
+
+#margin-top-10 {
+    margin-top: 10%;
 }
