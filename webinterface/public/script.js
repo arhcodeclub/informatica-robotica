@@ -4,8 +4,6 @@ class InputButton {
     keys;
     activeKeys;
 
-    isClicked;
-
     callback;
 
     /**
@@ -17,6 +15,7 @@ class InputButton {
         this.activeKeys = new Array(this.keys.length);
         this.element = element;
 
+        // initialize to 0
         for (let i = 0; i < this.activeKeys.length; i++) this.activeKeys[i] = 0;
 
         this.callback = callback;
@@ -48,7 +47,6 @@ class InputButton {
         // check if this is the first time this input is activated
         for (let i = 0; i < this.activeKeys.length; i++)
             if (this.activeKeys[i]) return;
-        if (this.isClicked) return;
 
         this.callback(1);
 
@@ -59,8 +57,7 @@ class InputButton {
         // check if this is the first time this input is deactivated
         for (let i = 0; i < this.activeKeys.length; i++)
             if (this.activeKeys[i]) return;
-        if (this.isClicked) return;
-
+            
         this.callback(0);
 
         this.element.style.border = "rgba(255, 255, 255, 1) solid 2px";
@@ -81,46 +78,31 @@ class InputHandler {
     }
 
     initialize() {
-        this.buttons.forEach((btn) => {
-            btn.element.addEventListener("mousedown", () => {
-                if (!this.takingInput) return;
+        window.addEventListener("keydown", (e) => {
+            if (!this.takingInput) return;
 
-                btn.activate();
-                btn.isClicked = true;
-            });
-            btn.element.addEventListener("mouseup", () => {
-                if (!this.takingInput) return;
-
-                btn.isClicked = false;
-                btn.deactivate();
+            this.buttons.forEach((btn) => {
+                btn.keyDown(e);
             });
         });
+        window.addEventListener("keyup", (e) => {
+            if (!this.takingInput) return;
 
-        window.addEventListener("keydown", this.keyDown.bind(this));
-        window.addEventListener("keyup", this.keyUp.bind(this));
-    }
-
-    keyUp(e) {
-        if (!this.takingInput) return;
-
-        this.buttons.forEach((btn) => {
-            btn.keyUp(e);
-        });
-    }
-
-    keyDown(e) {
-        if (!this.takingInput) return;
-
-        this.buttons.forEach((btn) => {
-            btn.keyDown(e);
+            this.buttons.forEach((btn) => {
+                btn.keyUp(e);
+            });
         });
     }
 
     switchInput() {
         this.takingInput = !this.takingInput;
 
-        this.inputSwitchElement.style.backgroundColor = (this.takingInput ? "green" : "red");
-        this.inputSwitchElement.innerHTML = (this.takingInput ? "taking input" : "not taking input");
+        this.inputSwitchElement.style.backgroundColor = this.takingInput
+            ? "green"
+            : "red";
+        this.inputSwitchElement.innerHTML = this.takingInput
+            ? "taking input"
+            : "not taking input";
     }
 }
 
@@ -130,12 +112,14 @@ function createSocket() {
     try {
         let s = new WebSocket(document.getElementById("addr").value);
 
-        document.getElementById("address-input").style.backgroundColor = "green";
+        document.getElementById("address-input").style.backgroundColor =
+            "green";
 
         s.onopen = (e) => {
             console.log("connection established");
 
-            document.getElementById("buttonMiddle").style.backgroundColor = "green";
+            document.getElementById("buttonMiddle").style.backgroundColor =
+                "green";
         };
 
         s.onmessage = (e) => {
@@ -145,20 +129,21 @@ function createSocket() {
         s.onerror = (e) => {
             console.log("connection failed");
 
-            document.getElementById("buttonMiddle").style.backgroundColor = "red";
+            document.getElementById("buttonMiddle").style.backgroundColor =
+                "red";
         };
 
         s.onclose = (e) => {
             console.log("connection closed");
 
-            document.getElementById("buttonMiddle").style.backgroundColor = "red";
+            document.getElementById("buttonMiddle").style.backgroundColor =
+                "red";
         };
-    
+
         return s;
-    } catch(e) {
+    } catch (e) {
         document.getElementById("address-input").style.backgroundColor = "red";
     }
-
 }
 
 /** logs data to console and sends it to server */
@@ -173,16 +158,17 @@ function sendDirection(data) {
         if (socket.readyState !== WebSocket.OPEN) return;
 
         socket.send(JSON.stringify(data));
-    } catch(e) { return; }
+    } catch (e) {
+        return;
+    }
 }
 
 /** tries to reconnect to server */
 function reconnect() {
     if (
-        socket && (
-            socket.readyState !== WebSocket.CLOSED &&
-            socket.readyState !== WebSocket.CONNECTING
-        )
+        socket &&
+        socket.readyState !== WebSocket.CLOSED &&
+        socket.readyState !== WebSocket.CONNECTING
     )
         return;
 
@@ -234,10 +220,11 @@ function main() {
             function (active) {
                 if (active) reconnect();
             }
-        )
+        ),
     ]);
 
-    document.getElementById("switch-input").onclick = handler.switchInput.bind(handler);
+    document.getElementById("switch-input").onclick =
+        handler.switchInput.bind(handler);
 
     socket = createSocket();
 }
