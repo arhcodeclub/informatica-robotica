@@ -6,8 +6,9 @@ const websocketURLMatcher = /(?:ws|wss):\/\/\w+/;
 function indicateCorrectUrlStatus() {
     const elm = document.getElementById("addr");
 
+    // test against regex for only one match
     let matched = elm.value.match(websocketURLMatcher);
-    let success = !(!matched || matched.length > 1);
+    let success = matched && matched.length === 1;
 
     if (success) elm.parentElement.style.backgroundColor = "green";
     else elm.parentElement.style.backgroundColor = "red";
@@ -61,8 +62,9 @@ function initSocket(url) {
         updateConnectionStatus(socket.readyState);
     };
 
+    // socket server response handler, does nothing atm
     socket.onmessage = (e) => {
-        console.log("received: " + e.data);
+        // console.log("received: " + e.data);
     };
 
     socket.onerror = (e) => {
@@ -86,8 +88,6 @@ function initSocket(url) {
 
 /** logs data to console and sends it to server */
 function sendDirection(data) {
-    if (!socket) return;
-
     // check if data can be sent to socket
     if (socket.readyState !== WebSocket.OPEN) return;
 
@@ -166,8 +166,6 @@ function main() {
 
     // indicate if input is being taken or not
     document.getElementById("button-wrapper").onclick = (e) => {
-        if (!socket) return;
-
         if (socket.readyState !== WebSocket.OPEN) return;
 
         // reverse current input setting
@@ -175,6 +173,8 @@ function main() {
     };
 
     setInputActive(0);
+
+    reconnect();
 }
 
 onload = main;
