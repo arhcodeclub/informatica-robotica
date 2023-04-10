@@ -1,187 +1,119 @@
-class InputButton {
-    element;
-
-    keys;
-    activeKeys;
-
-    callback;
-
-    /**
-     * @param keys array of keys which activate button
-     * @param callback callback functions, is given the activation status (0 or 1) as input, where 1 is activation and 0 is deactivation
-     */
-    constructor(element, keys, callback) {
-        this.keys = keys;
-        this.activeKeys = new Array(this.keys.length);
-        this.element = element;
-
-        // initialize to 0
-        for (let i = 0; i < this.activeKeys.length; i++) this.activeKeys[i] = 0;
-
-        this.callback = callback;
-    }
-
-    keyDown(e) {
-        let key = e.key;
-
-        this.keys.forEach((k, i) => {
-            if (k === key) {
-                this.activate();
-                this.activeKeys[i] = 1;
-            }
-        });
-    }
-
-    keyUp(e) {
-        let key = e.key;
-
-        this.keys.forEach((k, i) => {
-            if (k === key) {
-                this.activeKeys[i] = 0;
-                this.deactivate();
-            }
-        });
-    }
-
-    activate() {
-        // check if this is the first time this input is activated
-        for (let i = 0; i < this.activeKeys.length; i++)
-            if (this.activeKeys[i]) return;
-
-        this.callback(1);
-
-        this.element.style.border = "rgba(255, 255, 255, 0.2) solid 2px";
-    }
-
-    deactivate() {
-        // check if this is the first time this input is deactivated
-        for (let i = 0; i < this.activeKeys.length; i++)
-            if (this.activeKeys[i]) return;
-            
-        this.callback(0);
-
-        this.element.style.border = "rgba(255, 255, 255, 1) solid 2px";
-    }
-}
-
-class InputHandler {
-    buttons;
-    takingInput;
-    inputSwitchElement;
-
-    constructor(buttons) {
-        this.buttons = buttons;
-        this.takingInput = false;
-        this.inputSwitchElement = document.getElementById("input-status");
-
-        this.initialize();
-    }
-
-    initialize() {
-        window.addEventListener("keydown", (e) => {
-            if (!this.takingInput) return;
-
-            this.buttons.forEach((btn) => {
-                btn.keyDown(e);
-            });
-        });
-        window.addEventListener("keyup", (e) => {
-            if (!this.takingInput) return;
-
-            this.buttons.forEach((btn) => {
-                btn.keyUp(e);
-            });
-        });
-    }
-
-    switchInput() {
-        this.takingInput = !this.takingInput;
-
-        this.inputSwitchElement.style.backgroundColor = this.takingInput
-            ? "green"
-            : "red";
-        this.inputSwitchElement.innerHTML = this.takingInput
-            ? "taking input"
-            : "not taking input";
-    }
-}
-
+let failedToConnect = false;
 let socket;
+const websocketURLMatcher = /(?:ws|wss):\/\/\w+/;
 
-function createSocket() {
-    try {
-        let s = new WebSocket(document.getElementById("addr").value);
+/** matches elm.value with webSocketURLMatcher, returns 1 if it does and 0 if not*/
+function indicateCorrectUrlStatus() {
+    const elm = document.getElementById("addr");
 
-        document.getElementById("address-input").style.backgroundColor =
-            "green";
+    let matched = elm.value.match(websocketURLMatcher);
+    let success = !(!matched || matched.length > 1);
 
-        s.onopen = (e) => {
-            console.log("connection established");
+    if (success) elm.parentElement.style.backgroundColor = "green";
+    else elm.parentElement.style.backgroundColor = "red";
 
-            document.getElementById("buttonMiddle").style.backgroundColor =
-                "green";
-        };
+    return success;
+}
 
-        s.onmessage = (e) => {
-            console.log("received: " + e.data);
-        };
+function setInputActive(active) {
+    window.handler.setInputActiveValue(active);
 
-        s.onerror = (e) => {
-            console.log("connection failed");
+    const border = active ? "5px solid rgb(42,88,42)" : "";
 
-            document.getElementById("buttonMiddle").style.backgroundColor =
-                "red";
-        };
+    document.getElementById("button-wrapper").style.border = border;
+}
 
-        s.onclose = (e) => {
-            console.log("connection closed");
+function updateConnectionStatus(status) {
+    const elm = document.getElementById("connection-status"),
+        color = document.getElementById("connection-status-icon");
 
-            document.getElementById("buttonMiddle").style.backgroundColor =
-                "red";
-        };
+    switch (status) {
+        case WebSocket.OPEN:
+            elm.innerHTML = "connected";
+            color.style.backgroundColor = "green";
 
-        return s;
-    } catch (e) {
-        document.getElementById("address-input").style.backgroundColor = "red";
+            break;
+
+        case WebSocket.CLOSED:
+            elm.innerHTML = "disconnected";
+            color.style.backgroundColor = "red";
+
+            break;
+
+        case WebSocket.CONNECTING:
+            elm.innerHTML = "connecting";
+            color.style.backgroundColor = "orange";
+
+            break;
+
+        default:
+            break;
     }
+}
+
+/** initializes socket connection */
+function initSocket(url) {
+    socket = new WebSocket(url);
+
+    socket.onopen = (e) => {
+        console.log("connection established");
+
+        updateConnectionStatus(socket.readyState);
+    };
+
+    socket.onmessage = (e) => {
+        console.log("received: " + e.data);
+    };
+
+    socket.onerror = (e) => {
+        console.log("connection failed");
+
+        updateConnectionStatus(socket.readyState);
+
+        setInputActive(0);
+    };
+
+    socket.onclose = (e) => {
+        console.log("connection closed");
+
+        updateConnectionStatus(socket.readyState);
+
+        setInputActive(0);
+    };
+
+    updateConnectionStatus(socket.readyState);
 }
 
 /** logs data to console and sends it to server */
 function sendDirection(data) {
+    if (!socket) return;
+
+    // check if data can be sent to socket
+    if (socket.readyState !== WebSocket.OPEN) return;
+
+    socket.send(JSON.stringify(data));
+
     // logging with fancy colors >_>
-    console.log(
-        `Direction: ${data.direction}, ` + `%c pressed: ${data.start}`,
-        `color: ${data.start ? "green" : "red"}`
-    );
-
-    try {
-        if (socket.readyState !== WebSocket.OPEN) return;
-
-        socket.send(JSON.stringify(data));
-    } catch (e) {
-        return;
-    }
+    // console.log(
+    //     `Direction: ${data.direction}, ` + `%c pressed: ${data.start}`,
+    //     `color: ${data.start ? "green" : "red"}`
+    // );
 }
 
 /** tries to reconnect to server */
 function reconnect() {
-    if (
-        socket &&
-        socket.readyState !== WebSocket.CLOSED &&
-        socket.readyState !== WebSocket.CONNECTING
-    )
-        return;
+    // on reconnect, stop taking input
+    setInputActive(0);
 
-    document.getElementById("buttonMiddle").style.backgroundColor = "orange";
+    console.log("connecting...");
 
-    console.log("reconnecting...");
-
-    socket = createSocket();
+    // initialize socket with url from url bar
+    initSocket(document.getElementById("addr").value);
 }
 
 /** program entrypoint (though javascript doesn't really have that :/) */
 function main() {
-    let handler = new InputHandler([
+    window.handler = new InputHandler([
         new InputButton(
             document.getElementById("buttonUp"),
             ["w", "ArrowUp"],
@@ -214,19 +146,33 @@ function main() {
                 else sendDirection({ direction: "right", start: 0 });
             }
         ),
-        new InputButton(
-            document.getElementById("buttonMiddle"),
-            ["r"],
-            function (active) {
-                if (active) reconnect();
-            }
-        ),
     ]);
 
-    document.getElementById("switch-input").onclick =
-        handler.switchInput.bind(handler);
+    // on every button release, check if the url is following our guidelines
+    // and indicate status
+    const addrElm = document.getElementById("addr");
+    addrElm.onkeyup = (e) => {
+        let status = indicateCorrectUrlStatus();
 
-    socket = createSocket();
+        if (status && e.key == "Enter") {
+            reconnect();
+        }
+    };
+
+    // initial check if the given url is correct
+    // for if url is still present from reload, in which case keypress won't
+    // be detected initially
+    indicateCorrectUrlStatus();
+
+    // indicate if input is being taken or not
+    document.getElementById("button-wrapper").onclick = (e) => {
+        if (!socket) return;
+
+        if (socket.readyState !== WebSocket.OPEN) return;
+
+        // reverse current input setting
+        setInputActive(!window.handler.takingInput);
+    };
 }
 
 onload = main;

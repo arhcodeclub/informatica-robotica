@@ -10,28 +10,34 @@
 <body>
     <h1 id="dashboard-header">Car Dashboard</h1>
 
-    <div id="address-input">
-        <label for="addr" id="addr-label">Remote server address: </label>
-        <input type="text" id="addr" name="address" required>
+    <div id="input-wrapper" class="flex-content-centered">
+
+        <div id="address-input">
+            <label for="addr" id="addr-label">Remote server address: </label>
+            <input on type="text" id="addr" name="address" required placeholder="ws://websocket.org">
+        </div>
+    
+        <div id="button-wrapper" class="flex-content-centered">
+            <div id="connection-status-wrapper" class="flex-content-centered">
+                <div id="connection-status-icon"></div>
+                <h3 id="connection-status"> not connected</h3>
+            </div>
+            
+            <div id="button-panel-container" class="flex-content-centered">
+                <button class="arrow-button" id="buttonUp"><img src="./white-arrow-down.png" draggable="false" id="arrowUp"></button>
+                <div id="buttons-middle-row-wrapper">
+                    <button class="arrow-button button-middle-row" id="buttonLeft"><img src="./white-arrow-down.png" draggable="false"></button>
+                    <button class="arrow-button button-middle-row" id="buttonMiddle"><img src="./white-dot.png" draggable="false"></button>
+                    <button class="arrow-button button-middle-row" id="buttonRight"><img src="./white-arrow-down.png" draggable="false"></button>
+                </div>
+                <button class="arrow-button" id="buttonDown"><img src="./white-arrow-down.png" draggable="false" id="arrowDown"></button>
+            </div>
+
+            <p id="controls" style="color: rgb(152, 99, 0)"><span style="color:orange">[</span>wasd/arrow keys<span style="color:orange">]</span></p>
+        </div>
     </div>
     
-    <div id="buttons-wrapper">
-        <div id="buttons-input-status">
-            <p id="input-status" >not taking input</p>
-            <button id="switch-input">switch input</button>
-        </div>
-
-        <div id="margin-top-10"></div>
-
-        <button class="arrow-button" id="buttonUp"><img src="./white-arrow-down.png" draggable="false" id="arrowUp"></button>
-        <div id="buttons-middle-row-wrapper">
-            <button class="arrow-button button-middle-row" id="buttonLeft"><img src="./white-arrow-down.png" draggable="false"></button>
-            <button class="arrow-button button-middle-row" id="buttonMiddle"><img src="./white-arrow-down.png" draggable="false"></button>
-            <button class="arrow-button button-middle-row" id="buttonRight"><img src="./white-arrow-down.png" draggable="false"></button>
-        </div>
-        <button class="arrow-button" id="buttonDown"><img src="./white-arrow-down.png" draggable="false" id="arrowDown"></button>
-    </div>
-    
+    <script src="./inputHandler.js"></script>
     <script src="./script.js"></script>
 </body>
 </html>
