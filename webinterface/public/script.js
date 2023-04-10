@@ -18,7 +18,7 @@ function indicateCorrectUrlStatus() {
 function setInputActive(active) {
     window.handler.setInputActiveValue(active);
 
-    const border = active ? "5px solid rgb(42,88,42)" : "";
+    const border = active ? "5px solid rgb(42,88,42)" : "5px solid rgb(125,32,32)";
 
     document.getElementById("button-wrapper").style.border = border;
 }
@@ -173,6 +173,8 @@ function main() {
         // reverse current input setting
         setInputActive(!window.handler.takingInput);
     };
+
+    setInputActive(0);
 }
 
 onload = main;
