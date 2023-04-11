@@ -21,15 +21,15 @@ html, body {
 
 /* Arrow rotation */
 
-#arrowUp {
+.buttonUp {
     rotate: 180deg;
 }
 
-#buttonLeft {
+.buttonLeft {
     rotate: 90deg;
 }
 
-#buttonRight {
+.buttonRight {
     rotate: 270deg;
 }
 
@@ -43,19 +43,25 @@ html, body {
     align-items: center;
 }
 
-#button-wrapper {
+.button-wrapper {
+    min-width: fit-content;
+    margin: 10px;
     border-radius: 15px;
     background-color: rgb(51, 51, 51);
-    margin-top: 5vh;
     padding: 20px;
     cursor: pointer;
+    border: 2px solid rgb(156, 46, 46);
 }
 
-#button-wrapper:hover {
+.panel-active {
+    border: 2px solid rgb(46, 156, 48);
+}
+
+.button-wrapper:hover {
     background-color: rgb(46, 46, 46);
 }
 
-#button-panel-container {
+.button-panel-container {
     width: fit-content;
     margin-top: 10px;
     margin-bottom: 10px;
@@ -68,6 +74,18 @@ html, body {
     padding: 5px;
 
     border-radius: 15px;
+
+    cursor: pointer;
+
+    user-select: none;
+}
+
+#connection-status-wrapper:hover {
+    background-color: rgb(96, 96, 96);
+}
+
+#connection-status-wrapper:active {
+    background-color: rgb(114, 114, 114);
 }
 
 #connection-status-icon {
@@ -88,7 +106,7 @@ html, body {
     margin: 0;
 }
 
-#button-panel-container img {
+.button-panel-container img {
     height: 100%;
     width: 100%;
 }
@@ -98,7 +116,7 @@ html, body {
 
     padding: 0;
     margin: 5px;
-    height: 10vh;
+    height: 8vh;
 }
 
 .arrow-button {
@@ -106,7 +124,13 @@ html, body {
     border: rgba(255, 255, 255, 1) solid 2px;
 }
 
+#connection-wrapper {
+    flex-direction: row;
+}
+
 #address-input {
+    user-select: none;
+    margin: 10px;
     background-color: rgb(51, 51, 51);
     width: fit-content;
     height: fit-content;
@@ -115,6 +139,28 @@ html, body {
     border-radius: 5px;
 }
 
-#margin-top-10 {
-    margin-top: 10%;
+#button-panels-wrapper {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.initial-button-panel {
+    visibility: hidden;
+    position: absolute;
+}
+
+.controls {
+    user-select: none;
+}
+
+.button-name-p {
+    user-select: none;
+}
+
+.button-name {
+    user-select: all;
+}
+
+.button-active {
+    border: rgba(255, 255, 255, 0.2) solid 2px;
 }

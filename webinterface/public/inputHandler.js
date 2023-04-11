@@ -1,9 +1,4 @@
 class InputButton {
-    keys;
-    activeKeys;
-
-    callback;
-
     /**
      * @param keys array of keys which activate button
      * @param callback callback functions, is given the activation status (0 or 1) as input, where 1 is activation and 0 is deactivation
@@ -42,23 +37,39 @@ class InputButton {
     }
 
     activate() {
-        // check if this is the first time this input is activated
-        for (let i = 0; i < this.activeKeys.length; i++)
-            if (this.activeKeys[i]) return;
+        // only call callback when this input is engaged for the first time
+        if (this.isPressed()) return;
 
         this.callback(1);
 
-        this.element.style.border = "rgba(255, 255, 255, 0.2) solid 2px";
+        this.element.classList.add("button-active");
     }
 
     deactivate() {
-        // check if this is the first time this input is deactivated
-        for (let i = 0; i < this.activeKeys.length; i++)
-            if (this.activeKeys[i]) return;
+        // only call callback when this input is fully disengaged
+        if (this.isPressed()) return;
 
         this.callback(0);
 
-        this.element.style.border = "rgba(255, 255, 255, 1) solid 2px";
+        this.element.classList.remove("button-active");
+    }
+
+    isPressed() {
+        for (let i = 0; i < this.activeKeys.length; i++)
+            if (this.activeKeys[i]) return 1;
+        return 0;
+    }
+
+    forceQuit() {
+        // check if the button was pressed
+        let wasPressed = this.isPressed();
+
+        this.keys.forEach((k, i) => {
+            this.activeKeys[i] = 0;
+        });
+    
+        if (wasPressed)
+            this.deactivate();
     }
 }
 
@@ -90,7 +101,16 @@ class InputHandler {
         });
     }
 
+    forceQuit() {
+        this.buttons.forEach(btn => {
+            btn.forceQuit();
+        });
+    }
+
     setInputActiveValue(active) {
+        // deactivate all keys
+        this.forceQuit();
+
         this.takingInput = active;
     }
 }
