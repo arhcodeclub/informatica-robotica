@@ -8,40 +8,48 @@
     <title>Dashboard</title>
 </head>
 <body>
-    <h1 id="dashboard-header">Car Dashboard</h1>
+    
+    <div id="content-wrapper">
+        <div id="information-interface">
+            <div id="connection-wrapper">
+                <div id="address-input">
+                    <label for="addr" id="addr-label">Remote server address: </label>
+                    <input on type="text" id="addr" name="address" required placeholder="ws://websocket.org">
+                </div>
+            
+                <div id="spacer"></div>
 
-    <div id="input-wrapper" class="flex-content-centered">
-        <div id="connection-wrapper" class="flex-content-centered">
-            <div id="address-input">
-                <label for="addr" id="addr-label">Remote server address: </label>
-                <input on type="text" id="addr" name="address" required placeholder="ws://websocket.org">
+                <div id="connection-status-wrapper" class="flex-content-centered">
+                    <div id="connection-status-icon"></div>
+                    <p id="connection-status"> not connected</p>
+                </div>
             </div>
-        
-            <div id="spacer"></div>
-
-            <div id="connection-status-wrapper" class="flex-content-centered">
-                <div id="connection-status-icon"></div>
-                <h3 id="connection-status"> not connected</h3>
+            <div id="console">
             </div>
         </div>
-
-        <div id="button-panels-wrapper" class="flex-content-centered">
-            <div class="button-wrapper flex-content-centered initial-button-panel">
-                <p class="button-name-p" style="color: rgb(24, 163, 213)"><span style="color:rgb(0, 111, 152)">[</span><span class="button-name">lorem ipsum</span><span style="color:rgb(0, 111, 152)">]</span></p>
-                <div class="button-panel-container flex-content-centered">
-                    <button class="arrow-button buttonUp"><img src="./white-arrow-down.png" draggable="false""></button>
-                    <div class="buttons-middle-row-wrapper">
-                        <button class="arrow-button button-middle-row buttonLeft"><img src="./white-arrow-down.png" draggable="false"></button>
-                        <button class="arrow-button button-middle-row buttonMiddle"><img src="./white-dot.png" draggable="false"></button>
-                        <button class="arrow-button button-middle-row buttonRight"><img src="./white-arrow-down.png" draggable="false"></button>
+        <div id="main-interface">
+            <h1 id="dashboard-header">Car Dashboard</h1>
+            <div id="input-wrapper" class="flex-content-centered">
+                <div id="button-panels-wrapper" class="flex-content-centered">
+                    <div class="button-wrapper flex-content-centered initial-button-panel">
+                        <p class="button-name-p" style="color: rgb(24, 163, 213)"><span style="color:rgb(0, 111, 152)">[</span><span class="button-name">lorem ipsum</span><span style="color:rgb(0, 111, 152)">]</span></p>
+                        <div class="button-panel-container flex-content-centered">
+                            <button class="arrow-button buttonUp"><img src="./white-arrow-down.png" draggable="false""></button>
+                            <div class="buttons-middle-row-wrapper">
+                                <button class="arrow-button button-middle-row buttonLeft"><img src="./white-arrow-down.png" draggable="false"></button>
+                                <button class="arrow-button button-middle-row buttonMiddle"><img src="./white-dot.png" draggable="false"></button>
+                                <button class="arrow-button button-middle-row buttonRight"><img src="./white-arrow-down.png" draggable="false"></button>
+                            </div>
+                            <button class="arrow-button buttonDown"><img src="./white-arrow-down.png" draggable="false"></button>
+                        </div>
+                        <p class="controls" style="color: rgb(152, 99, 0)"><span style="color:orange">[</span>wasd/arrow keys<span style="color:orange">]</span></p>
                     </div>
-                    <button class="arrow-button buttonDown"><img src="./white-arrow-down.png" draggable="false"></button>
                 </div>
-                <p class="controls" style="color: rgb(152, 99, 0)"><span style="color:orange">[</span>wasd/arrow keys<span style="color:orange">]</span></p>
             </div>
         </div>
     </div>
     
+    <script src="./console.js"></script>
     <script src="./socketCommunication.js"></script>
     <script src="./inputHandler.js"></script>
     <script src="./buttonPanel.js"></script>

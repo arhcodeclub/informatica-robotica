@@ -1,14 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
+@import url('https://fonts.cdnfonts.com/css/terminal');
 
 html, body {
-    position: absolute;
-    top: 0%;
-    left: 0%;
-    width: 100vw;
-    height: 100vh;
     margin: 0;
-    background-color: #202020;
-
+    padding: 0;
     font-family: 'Roboto', sans-serif;
 }
 
@@ -71,7 +66,10 @@ html, body {
     flex-direction: row;
     background-color: rgb(140, 140, 140);
     width: fit-content;
+    max-width: 100%;
     padding: 5px;
+    margin: 5px;
+    border: 2px solid black;
 
     border-radius: 15px;
 
@@ -124,19 +122,24 @@ html, body {
     border: rgba(255, 255, 255, 1) solid 2px;
 }
 
-#connection-wrapper {
-    flex-direction: row;
+#input-wrapper {
+    width: 100%;
 }
 
 #address-input {
+    border: 2px solid black;
     user-select: none;
-    margin: 10px;
-    background-color: rgb(51, 51, 51);
-    width: fit-content;
+    margin: 5px;
+    width: auto;
     height: fit-content;
     color: white;
     padding: 5px;
     border-radius: 5px;
+}
+
+#address-input input {
+    box-sizing: border-box;
+    width: 100%;
 }
 
 #button-panels-wrapper {
@@ -163,4 +166,54 @@ html, body {
 
 .button-active {
     border: rgba(255, 255, 255, 0.2) solid 2px;
+}
+
+#content-wrapper {
+    display: flex;
+    flex-direction: row;
+}
+
+#information-interface {
+    height: 100vh;
+    background-color: rgb(69, 69, 69);
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+}
+
+#console {
+    background-color: black;
+    width: 100%;
+    height: 40%;
+    margin-top: auto;
+    color: rgb(0, 176, 0);
+    display: flex;
+    flex-direction: column;
+    overflow: scroll;
+    font-family: 'Terminal', sans-serif;
+}
+
+.console-item {
+    display: flex;
+    align-items: left;
+    width: auto;
+    height: fit-content;
+    padding: 0;
+    margin: 3px;
+}
+
+.console-item p {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.console-item-msg {
+    margin-left: 5px;
+    color: rgb(255, 255, 255);
+}
+
+#main-interface {
+    height: 100vh;
+    flex-grow: 1;
+    background-color: rgb(38, 38, 38);
 }
