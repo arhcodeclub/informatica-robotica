@@ -217,3 +217,7 @@ html, body {
     flex-grow: 1;
     background-color: rgb(38, 38, 38);
 }
+
+.buttons-middle-row-wrapper {
+    white-space: nowrap;
+}
