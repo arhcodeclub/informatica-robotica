@@ -75,6 +75,8 @@ class ButtonPanel {
     }
 
     send(data) {
+        if (!this.socketCommunicationInstance || this.socketCommunicationInstance.getState() !== WebSocket.OPEN) return;
+
 
         // inject self id in data
         data.id = this.id;
