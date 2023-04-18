@@ -82,19 +82,19 @@ class ButtonPanel {
         this.socketCommunicationInstance.sendData(data);
 
     }
+
+    remove() {
+        this.parent.removeChild(this.panelDiv);
+    }
 }
 
 class PanelManager {
-    nextId;
-
     panels;
 
     parent;
     socketCommunicationInstance;
 
     constructor(parent) {
-        this.nextId = 0;
-    
         this.panels = [];
 
         this.parent = parent;
@@ -104,12 +104,25 @@ class PanelManager {
         this.socketCommunicationInstance = socket;
     }
 
-    addPanel() {
-        this.panels.push(new ButtonPanel(this.nextId++, this, this.socketCommunicationInstance));
+    addPanel(id) {
+        // make sure no panels with this id exist yet
+        for (const p of this.panels) {
+            if (p.id === id) return;
+        }
+        
+        this.panels.push(new ButtonPanel(id, this, this.socketCommunicationInstance));
+    }
+
+    removePanel(id) {
+        this.panels.forEach((p, i) => {
+            if (p.id === id) {
+                p.remove();
+                this.panels.splice(i, 1);
+            }
+        });
     }
 
     deactivateAll() {
-        for (let i = 0; i < this.panels.length; i++)
-            this.panels[i].inputHandler.forceQuit();
+        this.panels.forEach(p => p.inputHandler.forceQuit() );
     }
 }

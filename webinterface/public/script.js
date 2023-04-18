@@ -66,6 +66,12 @@ function main() {
         updateConnectionStatus(e.srcElement.readyState);
     });
 
+    socketCommunication.addCallback((e) => {
+    
+        if (e.type !== "open") return;
+    
+    });
+
     window.customData.socketCommunicationInstance = socketCommunication;
 
     // PANEL MANAGER INITIALIZATION
@@ -73,9 +79,7 @@ function main() {
     let panelManager = new PanelManager(
         document.getElementById("button-panels-wrapper")
     );
-
     panelManager.setSocket(window.customData.socketCommunicationInstance);
-    panelManager.addPanel();
 
     window.customData.panelManager = panelManager;
 

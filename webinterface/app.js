@@ -9,6 +9,9 @@ const public_dir = path.join(__dirname, "public");
 const app = express();
 const port = 3000;
 
+const robotClients = [];
+
+
 // save the app server instance in a variable
 const server = app.listen(port, () => {
     console.log("Started on port " + port);
@@ -31,3 +34,10 @@ socket.on("connection", (e) => {
 app.use(express.static(public_dir));
 app.use(parser.urlencoded({ extended: true }));
 app.use(parser.json());
+
+
+setInterval(() => {
+    socket.clients.forEach((client) => {
+        client.send("test");
+    })
+}, 1000);
