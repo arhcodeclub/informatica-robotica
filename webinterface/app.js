@@ -3,13 +3,15 @@ const parser = require("body-parser");
 const path = require("path");
 const _ = require("lodash");
 const { WebSocketServer } = require("ws");
+const { ClientManager } = require("./client");
 
 const public_dir = path.join(__dirname, "public");
 
 const app = express();
 const port = 3000;
 
-const robotClients = [];
+const clientManager = new ClientManager();
+const tempClients = [];
 
 
 // save the app server instance in a variable
@@ -21,14 +23,36 @@ const server = app.listen(port, () => {
 const socket = new WebSocketServer({ server });
 
 // handle connection
-socket.on("connection", (e) => {
-    e.on("error", console.error);
+socket.on("connection", (ws) => {
 
-    console.log("connection");
+    tempClients.push(ws);
 
-    e.on("message", (data) => {
-        console.log(JSON.parse(data));
-    });
+    // check if client is valid
+
+    ws.onmessage = (msg) => {
+
+        const data = JSON.parse(msg.data);
+
+        if (!data) return;
+
+        console.log(data);
+
+        if (data.isController) { 
+            clientManager.globalController = ws;
+        
+            // send list of client id's to controller
+            let clients = [];
+
+            for (let i = 0; i < clientManager.clients.length; i++) {
+                clients.push(clientManager.clients[i].id);
+            }
+
+            ws.send(JSON.stringify({clients: clients}));
+        }
+        else clientManager.addClient(ws, data.id);
+
+    };
+
 });
 
 app.use(express.static(public_dir));
@@ -36,8 +60,8 @@ app.use(parser.urlencoded({ extended: true }));
 app.use(parser.json());
 
 
-setInterval(() => {
-    socket.clients.forEach((client) => {
-        client.send("test");
-    })
-}, 1000);
+// FOR TESTING PURPOSES
+
+// setInterval(() => {
+//     clientManager.broadcast({msg: "test broadcast"});
+// }, 1000);

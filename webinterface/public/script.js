@@ -66,11 +66,11 @@ function main() {
         updateConnectionStatus(e.srcElement.readyState);
     });
 
-    socketCommunication.addCallback((e) => {
-    
-        if (e.type !== "open") return;
-    
-    });
+    setInterval(() => {
+
+        socketCommunication.sendData({isController: 1});
+
+    }, 5000);
 
     window.customData.socketCommunicationInstance = socketCommunication;
 
@@ -80,6 +80,24 @@ function main() {
         document.getElementById("button-panels-wrapper")
     );
     panelManager.setSocket(window.customData.socketCommunicationInstance);
+
+
+    // refresh clients
+    socketCommunication.addCallback((e) => {
+
+        if (e.type !== "message" || !e.data) return;
+
+        const data = JSON.parse(e.data);
+
+        if (!data.clients) return;
+
+        const clients = data.clients;
+
+        // for every client currently in the program, check if it still
+        // exists on the server
+
+    });
+
 
     window.customData.panelManager = panelManager;
 
@@ -99,9 +117,9 @@ function main() {
     // initial check if the given url is correct
     // for if url is still present from reload, in which case keypress won't
     // be detected initially
-    indicateCorrectUrlStatus();
-
     reconnect();
+
+    indicateCorrectUrlStatus();
 }
 
 onload = main;

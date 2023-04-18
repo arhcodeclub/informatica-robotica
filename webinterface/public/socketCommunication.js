@@ -6,6 +6,7 @@ class SocketCommunication {
         this.connect(url);
 
         this.oneventCallbacks = [];
+        this.socket = undefined;
     }
 
     addCallback(callback) {
@@ -25,6 +26,8 @@ class SocketCommunication {
             this.runEventCallbacks({srcElement: this.socket, type: "connecting"});
 
             this.socket.onopen = (e) => {
+                // send initial message to server
+                this.sendData({isController: 1});
                 this.runEventCallbacks(e);
             };
         

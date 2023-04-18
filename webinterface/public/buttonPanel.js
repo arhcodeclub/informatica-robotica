@@ -127,4 +127,30 @@ class PanelManager {
     deactivateAll() {
         this.panels.forEach(p => p.inputHandler.forceQuit() );
     }
+
+    refreshPanels(serverids) {
+        for (let i = 0, panel = null; i < this.panels.length, panel = this.panels[i]; i++) {
+
+            console.log(panel);
+
+            let exists = 0;
+
+            // check if it still exists on the server
+            for (let id of serverids) {
+                if (id === panel.id) {
+                    exists = 1;
+                
+                    break;
+                }
+            }
+
+            // remove panel if it doesn't exist
+            if (!exists) {
+                panel.remove();
+                this.panels.splice(i, 1);
+                i--;
+            }
+
+        }
+    }
 }
