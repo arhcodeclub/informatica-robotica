@@ -6,7 +6,7 @@ let id;
 
 socket.onopen = (e) => {
 
-    socket.send(JSON.stringify({isController: 0}));
+    socket.send(JSON.stringify({type: "controllable"}));
 
 };
 
@@ -16,10 +16,20 @@ socket.onmessage = (msg) => {
 
     if (!data) return;
 
-    if (data.newId !== undefined) {
-        id = data.newId;
+    switch (data.type) {
+        case "newId": {
+            id = data.data;
+    
+            console.log("Acquired ID");
+    
+            socket.send(JSON.stringify({type: "connect"}));
+        } break;
 
-        console.log("Acquired ID");
+        case "input":
+            // handle input...?
+            break;
+
+        default: break;
     }
 
     console.log(data);

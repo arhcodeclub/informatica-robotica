@@ -6,15 +6,16 @@ class ButtonPanel {
 
     inputHandler;
 
-    socketCommunicationInstance;
-
     manager;
 
-    constructor(id, manager, socket) {
+    /** 
+     * @param manager parent manager
+     */
+    constructor(id, manager) {
         this.id = id;
         this.manager = manager;
+
         this.parent = manager.parent;
-        this.socketCommunicationInstance = socket;
 
         // copy global panel div
         this.panelDiv = this.parent.getElementsByClassName("initial-button-panel")[0].cloneNode(true);
@@ -27,17 +28,7 @@ class ButtonPanel {
 
         let me = this;
 
-        // on click, activate this panel
-        this.panelDiv.onclick = () => {
-            // switch input modes
-            me.inputHandler.setInputActiveValue(!me.inputHandler.takingInput);
-
-            if (me.inputHandler.takingInput) me.panelDiv.classList.add("panel-active");
-            else me.panelDiv.classList.remove("panel-active");
-        };
-
         // replace "this" with "me" because javascript's funky with the "this" object
-        // ensures socketCommunicationInstance is found
         this.inputHandler = new InputHandler([
             new InputButton(
                 this.panelDiv.getElementsByClassName("buttonUp")[0],
@@ -72,17 +63,22 @@ class ButtonPanel {
                 }
             ),
         ]);
+
+        // on click, activate this panel
+        this.panelDiv.onclick = () => {
+            // switch input modes
+            me.inputHandler.setInputActiveValue(!me.inputHandler.takingInput);
+
+            if (me.inputHandler.takingInput) me.panelDiv.classList.add("panel-active");
+            else me.panelDiv.classList.remove("panel-active");
+        };
     }
 
     send(data) {
-        if (!this.socketCommunicationInstance || this.socketCommunicationInstance.getState() !== WebSocket.OPEN) return;
-
-
         // inject self id in data
         data.id = this.id;
 
-        this.socketCommunicationInstance.sendData(data);
-
+        this.manager.send(data);
     }
 
     remove() {
@@ -94,16 +90,13 @@ class PanelManager {
     panels;
 
     parent;
-    socketCommunicationInstance;
+    dataCallback;
 
-    constructor(parent) {
+    constructor(parent, dataCallback) {
         this.panels = [];
+        this.dataCallback = dataCallback;
 
         this.parent = parent;
-    }
-
-    setSocket(socket) {
-        this.socketCommunicationInstance = socket;
     }
 
     addPanel(id) {
@@ -112,7 +105,7 @@ class PanelManager {
             if (p.id === id) return;
         }
         
-        this.panels.push(new ButtonPanel(id, this, this.socketCommunicationInstance));
+        this.panels.push(new ButtonPanel(id, this));
     }
 
     removePanel(id) {
@@ -129,28 +122,38 @@ class PanelManager {
     }
 
     refreshPanels(serverids) {
-        for (let i = 0, panel = null; i < this.panels.length, panel = this.panels[i]; i++) {
+        let clientExists = new Array(serverids.length);
+        let panelsNoClient = [];
 
-            console.log(panel);
-
+        for (let i = 0; i < this.panels.length; i++) {
             let exists = 0;
 
-            // check if it still exists on the server
-            for (let id of serverids) {
-                if (id === panel.id) {
+            for (let j = 0; j < serverids.length; j++) {
+
+                if (this.panels[i].id === serverids[j]) {
+                    clientExists[j] = 1;
+
                     exists = 1;
-                
-                    break;
                 }
+
             }
 
-            // remove panel if it doesn't exist
-            if (!exists) {
-                panel.remove();
-                this.panels.splice(i, 1);
-                i--;
-            }
-
+            if (!exists) panelsNoClient.push(this.panels[i].id);
         }
+
+
+        // add missing panels
+        for (let i = 0; i < clientExists.length; i++) {
+            if (clientExists[i] === undefined) this.addPanel(serverids[i]);
+        }
+
+        // remove panels without a client
+        for (let i = 0; i < panelsNoClient.length; i++) {
+            this.removePanel(panelsNoClient[i]);
+        }
+    }
+
+    send(data) {
+        this.dataCallback(data);
     }
 }

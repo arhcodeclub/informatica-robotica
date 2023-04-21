@@ -1,6 +1,12 @@
-let failedToConnect = false;
+/** global socket instance */
 let socket;
+/** global panel manager instance */
+let panelManager;
+/** global url matcher, regex */
 const websocketURLMatcher = /(?:ws|wss):\/\/\w+/;
+
+/** all robot clients currently connected to the server */
+let clientCache = [];
 
 /** matches elm.value with webSocketURLMatcher, returns 1 if it does and 0 if not*/
 function indicateCorrectUrlStatus() {
@@ -45,61 +51,120 @@ function updateConnectionStatus(status) {
     }
 }
 
-/** fetches document.getElementById('addr').value and attempts to reconnect websocket */
-function reconnect() {
-    let url = document.getElementById("addr").value;
+function onInputDataCallback(data) {
+    socket.send(JSON.stringify({type: "input", data: data}));
+}
 
-    window.customData.socketCommunicationInstance.connect(url);
+function refreshClients() {
+
+    if (socket.readyState !== WebSocket.OPEN) return;
+
+    // clear client cache
+    clientCache = [];
+
+    // request new clients
+    socket.send(JSON.stringify({type: "requestClients"}));
+
+}
+
+function connect(url) {
+    try {
+
+        socket = new WebSocket(url);
+
+        updateConnectionStatus(WebSocket.CONNECTING);
+
+        socket.addEventListener("open", e => updateConnectionStatus(e.target.readyState));
+        socket.addEventListener("close", e => updateConnectionStatus(e.target.readyState));
+        socket.addEventListener("error", e => updateConnectionStatus(e.target.readyState));
+
+        socket.onmessage = (e) => {
+
+            const data = JSON.parse(e.data);
+
+            switch (data.type) {
+                case "error": 
+                    console.error(data.data);
+                    break;
+
+                case "responseClients":
+                    if (!(data.data instanceof Array)) {
+                        throw new Error("incoming client list not an array");
+                    }
+
+                    clientCache = data.data;
+
+                    panelManager.refreshPanels(clientCache);
+
+                    break;
+
+                case "connect":
+                    socket.send(JSON.stringify({type: "connect"}));
+
+                    refreshClients();
+
+                    break;
+
+                case "addClient": {
+
+                    let id = data.data;
+
+                    panelManager.addPanel(id);
+
+                } break;
+
+                case "removeClient": {
+
+                    let id = data.data;
+
+                    panelManager.removePanel(id);
+
+                } break;
+
+                default: break;
+            }
+
+        };
+
+        socket.onopen = (e) => {
+            socket.send(JSON.stringify({type: "controller"}));   
+        }
+
+        socket.onclose = (e) => {
+            panelManager.refreshPanels([]);
+        }
+
+    } catch(e) {}
 }
 
 /** program entrypoint (though javascript doesn't really have that :/) */
 function main() {
-    // initialise custom data
-    window.customData = {};
-
-    // SOCKET INITIALIZATION
-
-    let socketCommunication = new SocketCommunication();
-
-    // indicate connection status
-    socketCommunication.addCallback((e) => {
-        updateConnectionStatus(e.srcElement.readyState);
-    });
-
-    setInterval(() => {
-
-        socketCommunication.sendData({isController: 1});
-
-    }, 5000);
-
-    window.customData.socketCommunicationInstance = socketCommunication;
-
     // PANEL MANAGER INITIALIZATION
 
-    let panelManager = new PanelManager(
-        document.getElementById("button-panels-wrapper")
+    panelManager = new PanelManager(
+        document.getElementById("button-panels-wrapper"),
+        onInputDataCallback
     );
-    panelManager.setSocket(window.customData.socketCommunicationInstance);
 
 
-    // refresh clients
-    socketCommunication.addCallback((e) => {
+    // // refresh clients
+    // socketCommunication.addCallback((e) => {
 
-        if (e.type !== "message" || !e.data) return;
+    //     if (e.type !== "message" || !e.data) return;
 
-        const data = JSON.parse(e.data);
+    //     const data = JSON.parse(e.data);
 
-        if (!data.clients) return;
+    //     if (!data.clients) return;
 
-        const clients = data.clients;
+    //     const clients = data.clients;
 
-        // for every client currently in the program, check if it still
-        // exists on the server
+    //     // for every client currently in the program, check if it still
+    //     // exists on the server
 
-    });
+    // });
 
 
-    window.customData.panelManager = panelManager;
+
 
     // on every button release, check if the url is following our guidelines
     // and indicate status
@@ -108,18 +173,20 @@ function main() {
         let status = indicateCorrectUrlStatus();
 
         if (status && e.key == "Enter") {
-            reconnect()
+            connect(addrElm.value);
         }
     };
-
-    document.getElementById("connection-status-wrapper").onclick = () => reconnect();
+    // if the connection status indicator is clicked, attempt reconnect
+    document.getElementById("connection-status-wrapper").onclick = () => connect(addrElm.value);
 
     // initial check if the given url is correct
     // for if url is still present from reload, in which case keypress won't
     // be detected initially
-    reconnect();
+    // reconnect();
 
+    addrElm.value = location.origin.replace("http", "ws");
     indicateCorrectUrlStatus();
+    connect(location.origin.replace("http", "ws"));
 }
 
 onload = main;
