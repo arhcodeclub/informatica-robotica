@@ -1,7 +1,7 @@
+const dotenv = require("dotenv");
 const express = require("express");
 const parser = require("body-parser");
 const path = require("path");
-const _ = require("lodash");
 const { WebSocketServer } = require("ws");
 const { ClientManager } = require("./client");
 
